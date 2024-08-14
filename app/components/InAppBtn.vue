@@ -39,7 +39,7 @@ function openApp() {
   </div>
 </template> -->
 
-<script setup>
+<!-- <script setup>
 import { ref } from 'vue'
 
 const APP_LINK = 'buyandship://routing?screen=/login'
@@ -68,6 +68,67 @@ function openApp() {
     }
   }, TIMEOUT)
 }
+</script>
+
+<template>
+  <div>
+    <button btn @click="openApp">
+      Tracking App
+    </button>
+    <a underline underline-blue :href="APP_LINK">
+      強開 App
+    </a>
+  </div>
+</template> -->
+
+<script setup>
+import { onMounted, onUnmounted, ref } from 'vue'
+
+const APP_LINK = 'buyandship://routing?screen=/login'
+const FALLBACK_LINK = 'https://qr.page/g/tSLYydLM2e'
+const TIMEOUT = 3000
+
+const hasOpened = ref(false)
+let timeoutId = null
+
+function resetState() {
+  hasOpened.value = false
+  if (timeoutId) {
+    clearTimeout(timeoutId)
+    timeoutId = null
+  }
+}
+
+function openApp() {
+  // 重置狀態
+  resetState()
+
+  // 嘗試打開應用程式
+  window.location.href = APP_LINK
+
+  const startTime = Date.now()
+
+  timeoutId = setTimeout(() => {
+    if (!hasOpened.value && Date.now() - startTime < TIMEOUT + 100) {
+      window.location.href = FALLBACK_LINK
+    }
+  }, TIMEOUT)
+}
+
+function handleVisibilityChange() {
+  if (document.hidden) {
+    hasOpened.value = true
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  resetState()
+})
 </script>
 
 <template>
