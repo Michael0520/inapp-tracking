@@ -89,10 +89,12 @@ const FALLBACK_LINK = 'https://qr.page/g/tSLYydLM2e'
 const TIMEOUT = 3000
 
 const hasOpened = ref(false)
+const isProcessing = ref(false)
 let timeoutId = null
 
 function resetState() {
   hasOpened.value = false
+  isProcessing.value = false
   if (timeoutId) {
     clearTimeout(timeoutId)
     timeoutId = null
@@ -100,10 +102,12 @@ function resetState() {
 }
 
 function openApp() {
-  // 重置狀態
-  resetState()
+  if (isProcessing.value)
+    return
 
-  // 嘗試打開應用程式
+  resetState()
+  isProcessing.value = true
+
   window.location.href = APP_LINK
 
   const startTime = Date.now()
@@ -112,12 +116,14 @@ function openApp() {
     if (!hasOpened.value && Date.now() - startTime < TIMEOUT + 100) {
       window.location.href = FALLBACK_LINK
     }
+    isProcessing.value = false
   }, TIMEOUT)
 }
 
 function handleVisibilityChange() {
   if (document.hidden) {
     hasOpened.value = true
+    isProcessing.value = false
   }
 }
 
@@ -133,8 +139,8 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <button btn @click="openApp">
-      Tracking App
+    <button btn :disabled="isProcessing" @click="openApp">
+      {{ isProcessing ? '處理中...' : 'Tracking App' }}
     </button>
     <a underline underline-blue :href="APP_LINK">
       強開 App
