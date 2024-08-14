@@ -31,7 +31,10 @@ function openApp() {
 <template>
   <div>
     <button btn @click="openApp">
-      點擊開啟 App
+      Tracking App
     </button>
+    <a underline underline-blue href="buyandship://routing?screen=/login">
+      強開 App
+    </a>
   </div>
 </template>
